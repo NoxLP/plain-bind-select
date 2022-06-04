@@ -1,4 +1,6 @@
-const saveOption = (options, useIds, option, data, menu) => {
+let options, useIds, config, menu, returnObject, dataProxiesArray, filterInput
+
+const saveOption = (option, data) => {
   if (useIds) {
     if (!options) options = {}
 
@@ -7,12 +9,15 @@ const saveOption = (options, useIds, option, data, menu) => {
   menu.appendChild(option)
   return options
 }
-const findOption = (options, useIds, propName, propValue) => {
+
+const findOption = (propName, propValue) => {
   if (propName == 'id' && useIds) return options[propValue]
   else if (useIds) return Object.values(options).find((o) => o.data[propName] == propValue)
 }
-const findOptionById = (options, id) => options[id]
-const createOption = (el, config) => {
+
+const findOptionById = (id) => options[id]
+
+const createOption = (el) => {
   const option = document.createElement('option')
   option.classList.add('dropdown-item')
   option.id = `${config.id}_option_${el.id}`
@@ -21,10 +26,39 @@ const createOption = (el, config) => {
   return option
 }
 
-const setOptions = (useIds, dataArray, menu, config) => {
+const createDataProxy = (data) => (
+  new Proxy(data, {
+    get: (target, prop, receiver) => {
+      console.log('ELEM GET ', prop)
+      return Reflect.get(target, prop, receiver)
+    },
+    set: (target, prop, value, receiver) => {
+      console.log('TAR ', target)
+      if (prop == 'id') throw new Error("Can't modify id value")
+
+      if (prop == 'value' || prop == 'text') {
+        const option = useIds ? findOptionById(target.id) :
+          findOption(prop, value)
+        console.log(option);
+        option.option[prop] = value
+      }
+
+      return Reflect.set(target, prop, value, receiver)
+    }
+  })
+)
+
+const filter = () => {
+  returnObject.data = dataProxiesArray.filter((el) =>
+    el.text.includes(filterInput.value) || el.value.includes(filterInput.value)
+  )
+}
+
+const setOptions = (dataArray) => {
   let options
   const dataProxiesArray = []
   dataArray.forEach((el) => {
+    console.log('> el ', el)
     if (!el.value || !el.text || (useIds && !el.id)) {
       console.error('Objects must have minimum "value" and "text" properties. And "id" property if "useIds" config is activated')
       return
@@ -34,39 +68,25 @@ const setOptions = (useIds, dataArray, menu, config) => {
       text: el.text
     }
     if (useIds) returnElement.id = el.id
-    dataProxiesArray.push(new Proxy(returnElement, {
-      set: (target, prop, value, receiver) => {
-        console.log('TAR ', target)
-        if (prop == 'id') throw new Error("Can't modify id value")
-
-        if (prop == 'value' || prop == 'text') {
-          const option = useIds ? findOptionById(options, target.id) :
-            findOption(options, useIds, prop, value)
-          console.log(option);
-          option.option[prop] = value
-        }
-
-        return Reflect.set(target, prop, value, receiver)
-      }
-    }))
+    dataProxiesArray.push(createDataProxy(returnElement))
 
     const option = createOption(el, config)
-    options = saveOption(options, useIds, option, el, menu)
+    options = saveOption(option, el)
   })
 
   return [options, dataProxiesArray]
 }
 
-export function mySelect(container, dataArray, config) {
+export function mySelect(container, dataArray, configObject) {
   if (!container || !dataArray || dataArray.length == 0) {
     console.error('Bad select params')
     return
   }
 
+  config = configObject
   let filteredData
-  let returnObject
 
-  const useIds = !config || !('useIds' in config) || config.useIds //default true
+  useIds = !config || !('useIds' in config) || config.useIds //default true
 
   const dropdown = document.createElement('div')
   dropdown.classList.add('dropdown')
@@ -77,7 +97,7 @@ export function mySelect(container, dataArray, config) {
   button.id = config.id
   button.dataset.toggle = 'dropdown'
 
-  const menu = document.createElement('div')
+  menu = document.createElement('div')
   menu.classList.add('dropdown-menu', 'w-100', 'p-2')
   menu.setAttribute('aria-labelledby', config.id)
 
@@ -85,42 +105,70 @@ export function mySelect(container, dataArray, config) {
   dropdown.appendChild(menu)
 
   if (!config || !('filter' in config) || config.filter) {
-    const filter = document.createElement('input')
-    filter.classList.add('form-control', 'mb-2')
-    filter.type = 'text'
+    filterInput = document.createElement('input')
+    filterInput.classList.add('form-control', 'mb-2')
+    filterInput.type = 'text'
 
-    menu.appendChild(filter)
-    filter.addEventListener('keyup', () => {
-      console.log('filter')
-      returnObject.data = dataProxiesArray.filter((el) =>
-        el.text.includes(filter.value) || el.value.includes(filter.value)
-      )
+    menu.appendChild(filterInput)
+    filterInput.addEventListener('keyup', () => {
+      console.log('filterInput')
+      filter()
     })
   }
 
-  const [options, dataProxiesArray] = setOptions(useIds, dataArray, menu, config)
+  [options, dataProxiesArray] = setOptions(dataArray)
 
   console.log('options ', options)
   console.log('proxies ', dataProxiesArray)
+  let filteredDataTrap = 'push'
   filteredData = [...dataProxiesArray]
+  const filteredDataProxy = new Proxy(filteredData, {
+    get: (target, prop, receiver) => {
+      console.log('FiltData GET ', prop)
+      if (prop == 'push') {
+        filteredDataTrap = 'push'
+      }
+
+      return Reflect.get(target, prop, receiver)
+    },
+    set: (target, prop, value, receiver) => {
+      console.log('FiltData SET ', prop, value)
+      if (prop == 'length') return true
+      if (filteredDataTrap == 'push') {
+        dataArray.push(value)
+        dataProxiesArray.push(createDataProxy(value))
+
+        const option = createOption(value, config)
+        options = saveOption(option, value)
+        filter()
+      }
+
+      return Reflect.set(target, prop, value, receiver)
+    }
+  })
+
   returnObject = new Proxy({
-    data: filteredData
+    data: filteredDataProxy
   }, {
     get: (target, prop, receiver) => {
       console.log('GET ', prop)
       return Reflect.get(target, prop, receiver)
     },
     set: (target, prop, value, receiver) => {
-      console.log('set data ', value)
+      console.log('set data ', prop, value)
+
+      if (prop == 'length') return true
+
       if (prop == 'data') {
         if (!Array.isArray(value)) throw new Error('Data must be an array')
 
         value.forEach((el) => {
-          const oldOption = findOptionById(options, el.id)
+          const oldOption = findOptionById(el.id)
           if (oldOption) oldOption.option.style.display = ""
           else {
-            const newOption = createOption(el, config)
-            saveOption(options, useIds, newOption, el, menu)
+            const newOption = createOption(el)
+            console.log('new option ', el)
+            saveOption(newOption, el)
           }
         })
         Object.values(options).forEach((opt) => {
@@ -131,7 +179,7 @@ export function mySelect(container, dataArray, config) {
         })
       }
 
-      return Reflect.set(target, prop, value, receiver)
+      return filteredDataProxy
     }
   })
 

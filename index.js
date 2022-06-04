@@ -39,12 +39,13 @@ document.getElementById('testBut').addEventListener('click', () => {
 
   if (index) selectData.data[index][text ? 'text' : 'value'] = value
   else {
-    console.log('push')
-    ++lastId
-    selectData.data.push({
+    const obj = {
       id: lastId,
       value,
       text: value
-    })
+    }
+    console.log('push ', obj)
+    ++lastId
+    selectData.data.push(obj)
   }
 })
