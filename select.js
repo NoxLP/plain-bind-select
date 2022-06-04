@@ -1,5 +1,5 @@
 let options, useIds, config, menu, returnObject, dataProxiesArray,
-  filterInput, button, selectedId, selectedOption
+  filterInput, button, selectedByScript
 
 const saveOption = (option, data) => {
   if (useIds) {
@@ -19,24 +19,29 @@ const findOption = (propName, propValue) => {
 const findOptionById = (id) => options[id]
 
 const setSelectedOptionById = (id) => {
-  const oldSelected = findOptionById(selectedId)
-  if (oldSelected)
+  if (returnObject.selectedId != undefined) {
+    const oldSelected = findOptionById(returnObject.selectedId)
     oldSelected.option.classList.remove('active')
+  }
 
+  selectedByScript = true
   if (id !== undefined && id !== null) {
-    selectedId = id
+    returnObject.selectedId = id
+    console.log('selectid ', returnObject.selectedId)
     const option = findOptionById(id)
     button.innerHTML = option.option.text
 
-    selectedOption = findOptionById(selectedId)
-    selectedOption.option.classList.add('active')
+    returnObject.selectedOption = findOptionById(returnObject.selectedId)
+    console.log('selected option ', returnObject.selectedOption)
+    returnObject.selectedOption.option.classList.add('active')
   } else {
-    selectedId = undefined
-    selectedOption = undefined
+    returnObject.selectedId = undefined
+    returnObject.selectedOption = undefined
     button.innerHTML = ''
   }
 
-  if (config && config.onSelected) config.onSelected(selectedOption)
+  if (config && config.onSelected) config.onSelected(returnObject.selectedOption)
+  selectedByScript = false
 }
 
 const createOption = (el) => {
@@ -65,9 +70,10 @@ const createDataProxy = (data) => (
         console.log(option);
         option.option[prop] = value
 
-        console.log('Selected: ', selectedId)
+        console.log('Selected: ', returnObject.selectedId)
         console.log(target.id);
-        if (selectedId != undefined && selectedId == target.id) {
+        if (returnObject.selectedId != undefined
+          && returnObject.selectedId == target.id) {
           console.log('changing selected ', value)
           button.innerHTML = value
         }
@@ -208,8 +214,8 @@ export function mySelect(container, dataArray, configObject) {
     filterInput,
     dropdown,
     data: filteredDataProxy,
-    selectedId,
-    selectedOption,
+    selectedId: undefined,
+    selectedOption: undefined,
     findOption,
     findOptionById
   }, {
@@ -243,8 +249,10 @@ export function mySelect(container, dataArray, configObject) {
 
         return filteredDataProxy
       } else if (prop == 'selectedId') {
-        setSelectedOptionById(value)
-      }
+        if (!selectedByScript) setSelectedOptionById(value)
+        else return Reflect.set(target, prop, value, receiver)
+      } else if (prop == 'selectedOption' && selectedByScript)
+        return Reflect.set(target, prop, value, receiver)
 
       return true
     }

@@ -39,6 +39,10 @@ document.getElementById('butTestStyle').addEventListener('click', () => {
   console.groupEnd()
 })
 
+document.getElementById('butTestLog').addEventListener('click', () => {
+  console.log('======================== SELECT DATA', selectData)
+})
+
 let lastId = 3
 document.getElementById('testBut').addEventListener('click', () => {
   const index = document.getElementById('testIndex').value
