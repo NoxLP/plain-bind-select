@@ -1,4 +1,5 @@
-let options, useIds, config, menu, returnObject, dataProxiesArray, filterInput
+let options, useIds, config, menu, returnObject, dataProxiesArray,
+  filterInput, button, selectedId, selectedOption
 
 const saveOption = (option, data) => {
   if (useIds) {
@@ -17,12 +18,34 @@ const findOption = (propName, propValue) => {
 
 const findOptionById = (id) => options[id]
 
+const setSelectedOptionById = (id) => {
+  const oldSelected = findOptionById(selectedId)
+  if (oldSelected)
+    oldSelected.option.classList.remove('active')
+
+  if (id !== undefined && id !== null) {
+    selectedId = id
+    const option = findOptionById(id)
+    button.innerHTML = option.option.text
+
+    selectedOption = findOptionById(selectedId)
+    selectedOption.option.classList.add('active')
+  } else {
+    selectedId = undefined
+    selectedOption = undefined
+    button.innerHTML = ''
+  }
+
+  if (config && config.onSelected) config.onSelected(selectedOption)
+}
+
 const createOption = (el) => {
   const option = document.createElement('option')
   option.classList.add('dropdown-item')
   option.id = `${config.id}_option_${el.id}`
   option.value = el.value
   option.text = el.text
+  option.addEventListener('click', () => setSelectedOptionById(el.id))
   return option
 }
 
@@ -59,7 +82,7 @@ const setOptions = (dataArray) => {
   const dataProxiesArray = []
   dataArray.forEach((el) => {
     console.log('> el ', el)
-    if (!el.value || !el.text || (useIds && !el.id)) {
+    if (!el.value || !el.text || (useIds && !('id' in el))) {
       console.error('Objects must have minimum "value" and "text" properties. And "id" property if "useIds" config is activated')
       return
     }
@@ -91,7 +114,7 @@ export function mySelect(container, dataArray, configObject) {
   const dropdown = document.createElement('div')
   dropdown.classList.add('dropdown')
 
-  const button = document.createElement('button')
+  button = document.createElement('button')
   button.classList.add('form-control', 'dropdown-toggle', 'text-left')
   button.type = 'button'
   button.id = config.id
@@ -134,6 +157,7 @@ export function mySelect(container, dataArray, configObject) {
     set: (target, prop, value, receiver) => {
       console.log('FiltData SET ', prop, value)
       if (prop == 'length') return true
+
       if (filteredDataTrap == 'push') {
         dataArray.push(value)
         dataProxiesArray.push(createDataProxy(value))
@@ -148,7 +172,9 @@ export function mySelect(container, dataArray, configObject) {
   })
 
   returnObject = new Proxy({
-    data: filteredDataProxy
+    data: filteredDataProxy,
+    selectedId,
+    selectedOption
   }, {
     get: (target, prop, receiver) => {
       console.log('GET ', prop)
@@ -177,9 +203,13 @@ export function mySelect(container, dataArray, configObject) {
             opt.option.style.display = "none"
           }
         })
+
+        return filteredDataProxy
+      } else if (prop == 'selectedId') {
+        setSelectedOptionById(value)
       }
 
-      return filteredDataProxy
+      return true
     }
   })
 

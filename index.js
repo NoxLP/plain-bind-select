@@ -4,32 +4,38 @@ const container = document.getElementById('container')
 console.log(container)
 const data = [
   {
-    id: 1,
+    id: 0,
     value: 'value1',
     text: 'value 1'
   },
   {
-    id: 2,
+    id: 1,
     value: 'myvalue2',
     text: 'my value 2'
   },
   {
-    id: 3,
+    id: 2,
     value: 'foovalue3',
     text: 'foo value 3'
   }
 ]
 console.log(data);
 const selectData = mySelect(container, data, {
-  id: 'testSelect'
+  id: 'testSelect',
+  onSelected: (selected) => console.log('SELECTED EVENT: ', selected)
 })
 console.log('SD ', selectData)
+console.groupCollapsed('TESTING SELECTED')
+selectData.selectedId = 1
+selectData.selectedId = undefined
+console.groupEnd()
 
 let lastId = 3
 document.getElementById('testBut').addEventListener('click', () => {
   const index = document.getElementById('testIndex').value
   const value = document.getElementById('testValue').value
   const text = document.getElementById('testTypeText').checked
+  const selected = document.getElementById('testTypeSelected').checked
 
   console.groupCollapsed(`TEST`)
   console.log('index: ', index)
@@ -37,7 +43,8 @@ document.getElementById('testBut').addEventListener('click', () => {
   console.log('target: ', text ? 'text' : 'value')
   console.groupEnd()
 
-  if (index) selectData.data[index][text ? 'text' : 'value'] = value
+  if (index && !selected) selectData.data[index][text ? 'text' : 'value'] = value
+  else if (index && selected) selectData.selectedId = index
   else {
     const obj = {
       id: lastId,
