@@ -172,9 +172,15 @@ export function mySelect(container, dataArray, configObject) {
   })
 
   returnObject = new Proxy({
+    menu,
+    button,
+    filterInput,
+    dropdown,
     data: filteredDataProxy,
     selectedId,
-    selectedOption
+    selectedOption,
+    findOption,
+    findOptionById
   }, {
     get: (target, prop, receiver) => {
       console.log('GET ', prop)

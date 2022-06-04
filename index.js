@@ -30,6 +30,18 @@ selectData.selectedId = 1
 selectData.selectedId = undefined
 console.groupEnd()
 
+document.getElementById('butTestClass').addEventListener('click', () => {
+  console.groupCollapsed('TESTING MENU CLASS add .bg-dark')
+  selectData.button.classList.toggle('bg-dark')
+  console.groupEnd()
+})
+
+document.getElementById('butTestStyle').addEventListener('click', () => {
+  console.groupCollapsed('TESTING BACKG COLOR STYLE to transparent')
+  selectData.button.style.backgroundColor = 'transparent'
+  console.groupEnd()
+})
+
 let lastId = 3
 document.getElementById('testBut').addEventListener('click', () => {
   const index = document.getElementById('testIndex').value
