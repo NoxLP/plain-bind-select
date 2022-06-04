@@ -13,6 +13,37 @@
   width: 20px;
   margin-left: -60px;
   z-index: 100;
+  color: #303030;
+  opacity: 1;
+  transform: scale(1);
+}
+.select-clear-button i {
+  opacity: 1;
+  transform: scale(1);
+  transition: transform .1s ease, opacity .3s ease;
+  transform-origin: center;
+}
+.select-clear-button svg {
+  opacity: 1;
+  transform: scale(1);
+  transition: transform .1s ease, opacity .3s ease;
+  transform-origin: center;
+}
+
+.select-clear-button:hover i {
+  transform: scale(1.1);
+}
+.select-clear-button:hover svg {
+  transform: scale(1.1);
+}
+
+.select-clear-button:active i {
+  opacity: 0.3;
+  transform: scale(1);
+}
+.select-clear-button:active svg {
+  opacity: 0.3;
+  transform: scale(1);
 }
 
 .select-clear-button:focus,.select-clear-button:active:focus,

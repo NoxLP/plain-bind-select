@@ -121,7 +121,7 @@ export function mySelect(container, dataArray, configObject) {
   button.dataset.toggle = 'dropdown'
 
   menu = document.createElement('div')
-  menu.classList.add('dropdown-menu', 'w-100', 'p-2')
+  menu.classList.add('dropdown-menu', 'w-100')
   menu.setAttribute('aria-labelledby', config.id)
 
   if (config && config.clearButton) {
@@ -135,6 +135,9 @@ export function mySelect(container, dataArray, configObject) {
     const icon = document.createElement('i')
     icon.classList.add('fa', 'fa-times', 'fa-xs')
     clearButton.appendChild(icon)
+    clearButton.addEventListener('click', () => {
+      setSelectedOptionById(undefined)
+    })
 
     button.classList.add('rounded')
 
@@ -149,7 +152,8 @@ export function mySelect(container, dataArray, configObject) {
 
   if (!config || !('filter' in config) || config.filter) {
     filterInput = document.createElement('input')
-    filterInput.classList.add('form-control', 'mb-2')
+    filterInput.classList.add('form-control', 'mb-3', 'mx-auto')
+    filterInput.style.width = '97%'
     filterInput.type = 'text'
 
     menu.appendChild(filterInput)
