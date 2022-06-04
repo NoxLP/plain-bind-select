@@ -114,7 +114,7 @@ export function mySelect(container, dataArray, configObject) {
   const dropdown = document.createElement('div')
   dropdown.classList.add('dropdown')
 
-  button = document.createElement('span')
+  button = document.createElement('button')
   button.classList.add('form-control', 'dropdown-toggle', 'text-left')
   button.type = 'button'
   button.id = config.id
