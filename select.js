@@ -64,6 +64,13 @@ const createDataProxy = (data) => (
           findOption(prop, value)
         console.log(option);
         option.option[prop] = value
+
+        console.log('Selected: ', selectedId)
+        console.log(target.id);
+        if (selectedId != undefined && selectedId == target.id) {
+          console.log('changing selected ', value)
+          button.innerHTML = value
+        }
       }
 
       return Reflect.set(target, prop, value, receiver)
