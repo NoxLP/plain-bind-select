@@ -10,13 +10,13 @@ const data = [
   },
   {
     id: 2,
-    value: 'value2',
-    text: 'value 2'
+    value: 'myvalue2',
+    text: 'my value 2'
   },
   {
     id: 3,
-    value: 'value3',
-    text: 'value 3'
+    value: 'foovalue3',
+    text: 'foo value 3'
   }
 ]
 console.log(data);

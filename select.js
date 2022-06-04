@@ -90,8 +90,9 @@ export function mySelect(container, dataArray, config) {
     filter.type = 'text'
 
     menu.appendChild(filter)
-    filter.addEventListener('change', () => {
-      returnObject.data = returnObject.data.filter((el) =>
+    filter.addEventListener('keyup', () => {
+      console.log('filter')
+      returnObject.data = dataProxiesArray.filter((el) =>
         el.text.includes(filter.value) || el.value.includes(filter.value)
       )
     })
@@ -105,17 +106,27 @@ export function mySelect(container, dataArray, config) {
   returnObject = new Proxy({
     data: filteredData
   }, {
+    get: (target, prop, receiver) => {
+      console.log('GET ', prop)
+      return Reflect.get(target, prop, receiver)
+    },
     set: (target, prop, value, receiver) => {
-      console.log('set data')
+      console.log('set data ', value)
       if (prop == 'data') {
         if (!Array.isArray(value)) throw new Error('Data must be an array')
 
         value.forEach((el) => {
           const oldOption = findOptionById(options, el.id)
-          if (oldOption) oldOption.option.style.display = "none"
+          if (oldOption) oldOption.option.style.display = ""
           else {
             const newOption = createOption(el, config)
             saveOption(options, useIds, newOption, el, menu)
+          }
+        })
+        Object.values(options).forEach((opt) => {
+          if (!value.some((v) => v.id == opt.data.id)) {
+            console.log('NOT IN ', opt)
+            opt.option.style.display = "none"
           }
         })
       }
