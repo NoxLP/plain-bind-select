@@ -1,8 +1,23 @@
 .dropdown-toggle {
   min-height: 35px;
 }
+
 .dropdown-toggle::after {
   position: absolute;
   right: 10px;
   top: 45%;
+}
+
+.select-clear-button {
+  height: 20px;
+  width: 20px;
+  margin-left: -60px;
+  z-index: 100;
+}
+
+.select-clear-button:focus,.select-clear-button:active:focus,
+.select-clear-button.active:focus,.select-clear-button.focus,
+.select-clear-button:active.focus,.select-clear-button.active.focus {
+  outline: none;
+  box-shadow: none;
 }

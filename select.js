@@ -114,7 +114,7 @@ export function mySelect(container, dataArray, configObject) {
   const dropdown = document.createElement('div')
   dropdown.classList.add('dropdown')
 
-  button = document.createElement('button')
+  button = document.createElement('span')
   button.classList.add('form-control', 'dropdown-toggle', 'text-left')
   button.type = 'button'
   button.id = config.id
@@ -124,8 +124,28 @@ export function mySelect(container, dataArray, configObject) {
   menu.classList.add('dropdown-menu', 'w-100', 'p-2')
   menu.setAttribute('aria-labelledby', config.id)
 
-  dropdown.appendChild(button)
-  dropdown.appendChild(menu)
+  if (config && config.clearButton) {
+    const group = document.createElement('div')
+    group.classList.add('input-group')
+    const clearButton = document.createElement('button')
+    clearButton.type = 'button'
+    clearButton.classList.add('btn', 'shadow-none', 'bg-transparent',
+      'select-clear-button', 'my-auto', 'd-flex', 'align-items-center',
+      'justify-content-center')
+    const icon = document.createElement('i')
+    icon.classList.add('fa', 'fa-times', 'fa-xs')
+    clearButton.appendChild(icon)
+
+    button.classList.add('rounded')
+
+    group.appendChild(button)
+    group.appendChild(clearButton)
+    group.appendChild(menu)
+    dropdown.appendChild(group)
+  } else {
+    dropdown.appendChild(button)
+    dropdown.appendChild(menu)
+  }
 
   if (!config || !('filter' in config) || config.filter) {
     filterInput = document.createElement('input')

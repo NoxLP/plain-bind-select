@@ -22,13 +22,10 @@ const data = [
 console.log(data);
 const selectData = mySelect(container, data, {
   id: 'testSelect',
-  onSelected: (selected) => console.log('SELECTED EVENT: ', selected)
+  clearButton: true,
+  onSelected: (selected) => console.log('SELECTED EVENT: ', selected),
 })
-console.log('SD ', selectData)
-console.groupCollapsed('TESTING SELECTED')
-selectData.selectedId = 1
-selectData.selectedId = undefined
-console.groupEnd()
+console.log('======================== SELECT DATA', selectData)
 
 document.getElementById('butTestClass').addEventListener('click', () => {
   console.groupCollapsed('TESTING MENU CLASS add .bg-dark')
