@@ -1,0 +1,8 @@
+.dropdown-toggle {
+  min-height: 35px;
+}
+.dropdown-toggle::after {
+  position: absolute;
+  right: 10px;
+  top: 45%;
+}

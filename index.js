@@ -20,9 +20,12 @@ const data = [
   }
 ]
 console.log(data);
-const selectData = mySelect(container, data)
-console.log(selectData)
+const selectData = mySelect(container, data, {
+  id: 'testSelect'
+})
+console.log('SD ', selectData)
 
+let lastId = 3
 document.getElementById('testBut').addEventListener('click', () => {
   const index = document.getElementById('testIndex').value
   const value = document.getElementById('testValue').value
@@ -33,5 +36,15 @@ document.getElementById('testBut').addEventListener('click', () => {
   console.log('value: ', value)
   console.log('target: ', text ? 'text' : 'value')
   console.groupEnd()
-  selectData[index][text ? 'text' : 'value'] = value
+
+  if (index) selectData.data[index][text ? 'text' : 'value'] = value
+  else {
+    console.log('push')
+    ++lastId
+    selectData.data.push({
+      id: lastId,
+      value,
+      text: value
+    })
+  }
 })
