@@ -53,10 +53,13 @@ const setSelectedOptionById = (id) => {
   selectedByScript = false
 }
 
+const buildDOMOptionId = (configid, elid) => {
+  `${configid}_option_${elid}`
+}
 const createOption = (el) => {
   const option = document.createElement('option')
   option.classList.add('dropdown-item')
-  option.id = `${config.id}_option_${el.id}`
+  option.id = buildDOMOptionId(config.id, el.id)
   option.value = el.value
   option.text = el.text
   option.addEventListener('click', () => setSelectedOptionById(el.id))
@@ -216,17 +219,17 @@ export function mySelect(container, dataArray, configObject) {
         }
       } else if (prop == 'unshift') {
         return (...args) => {
-          args.forEach((value, index) => {
-            dataArray.splice(index, 0, value)
-            dataProxiesArray.splice(index, 0, createDataProxy(value))
+          args.forEach((value, idx) => {
+            dataArray.splice(idx, 0, value)
+            dataProxiesArray.splice(idx, 0, createDataProxy(value))
 
             const option = createOption(value, config)
-            options = saveOption(option, value, index)
+            options = saveOption(option, value, idx)
           })
           filter()
         }
       } else if (prop == 'shift') {
-        return (...args) => {
+        return () => {
           const data = dataArray.shift()
           dataProxiesArray.shift()
           console.log('DATA ', data)
@@ -234,6 +237,20 @@ export function mySelect(container, dataArray, configObject) {
           if (useIds) removeOptionById(data.id)
           else { }
           filter()
+        }
+      } else if (prop == 'sort') {
+        return (...args) => {
+          dataArray.sort(...args)
+          dataProxiesArray.sort(...args)
+
+          menu.innerHTML = ''
+          dataArray.forEach((data) => {
+            const option = findOptionById(data.id).option
+            if (option)
+              menu.appendChild(option)
+          })
+          filter()
+          return dataProxiesArray
         }
       }
 

@@ -10,8 +10,8 @@ const data = [
   },
   {
     id: 1,
-    value: 'myvalue2',
-    text: 'my value 2'
+    value: 'zmyvalue2',
+    text: 'z my value 2'
   },
   {
     id: 2,
@@ -141,4 +141,11 @@ document.getElementById('testButArrayShift').addEventListener('click', () => {
   logArrayTest('shift')
   console.log('shift')
   selectData.data.shift()
+})
+
+document.getElementById('testButSort').addEventListener('click', () => {
+  console.groupCollapsed('sorting')
+  const text = document.getElementById('testSortEval').value
+  selectData.data = selectData.data.sort((a, b) => eval(text))
+  console.groupEnd()
 })
