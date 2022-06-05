@@ -1,14 +1,23 @@
 let options, useIds, config, menu, returnObject, dataProxiesArray,
   filterInput, button, selectedByScript
 
-const saveOption = (option, data) => {
+const saveOption = (option, data, index = undefined) => {
   if (useIds) {
     if (!options) options = {}
 
     options[data.id] = { option, data }
   }
-  menu.appendChild(option)
+
+  if (index == undefined || index == null || index > menu.children.length)
+    menu.appendChild(option)
+  else menu.insertBefore(option, menu.children[index + 1])
   return options
+}
+
+const removeOptionById = (id) => {
+  if (returnObject.selectedId == id) returnObject.selectedId = undefined
+  options[id].option.remove()
+  delete options[id]
 }
 
 const findOption = (propName, propValue) => {
@@ -61,7 +70,7 @@ const createDataProxy = (data) => (
       return Reflect.get(target, prop, receiver)
     },
     set: (target, prop, value, receiver) => {
-      console.log('TAR ', target)
+      console.log('TAR ', prop, target)
       if (prop == 'id') throw new Error("Can't modify id value")
 
       if (prop == 'value' || prop == 'text') {
@@ -180,13 +189,52 @@ export function mySelect(container, dataArray, configObject) {
 
   console.log('options ', options)
   console.log('proxies ', dataProxiesArray)
-  let filteredDataTrap = 'push'
   filteredData = [...dataProxiesArray]
   const filteredDataProxy = new Proxy(filteredData, {
     get: (target, prop, receiver) => {
       console.log('FiltData GET ', prop)
       if (prop == 'push') {
-        filteredDataTrap = 'push'
+        return (...args) => {
+          args.forEach((value) => {
+            dataArray.push(value)
+            dataProxiesArray.push(value)
+
+            const option = createOption(value, config)
+            options = saveOption(option, value)
+          })
+          filter()
+        }
+      } else if (prop == 'pop') {
+        return () => {
+          const data = dataArray.pop()
+          dataProxiesArray.pop()
+          console.log('DATA ', data)
+
+          if (useIds) removeOptionById(data.id)
+          else { }
+          filter()
+        }
+      } else if (prop == 'unshift') {
+        return (...args) => {
+          args.forEach((value, index) => {
+            dataArray.splice(index, 0, value)
+            dataProxiesArray.splice(index, 0, createDataProxy(value))
+
+            const option = createOption(value, config)
+            options = saveOption(option, value, index)
+          })
+          filter()
+        }
+      } else if (prop == 'shift') {
+        return (...args) => {
+          const data = dataArray.shift()
+          dataProxiesArray.shift()
+          console.log('DATA ', data)
+
+          if (useIds) removeOptionById(data.id)
+          else { }
+          filter()
+        }
       }
 
       return Reflect.get(target, prop, receiver)
@@ -195,17 +243,8 @@ export function mySelect(container, dataArray, configObject) {
       console.log('FiltData SET ', prop, value)
       if (prop == 'length') return true
 
-      if (filteredDataTrap == 'push') {
-        dataArray.push(value)
-        dataProxiesArray.push(createDataProxy(value))
-
-        const option = createOption(value, config)
-        options = saveOption(option, value)
-        filter()
-      }
-
       return Reflect.set(target, prop, value, receiver)
-    }
+    },
   })
 
   returnObject = new Proxy({

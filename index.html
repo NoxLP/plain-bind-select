@@ -19,47 +19,19 @@
       <br>
       <hr>
       <br>
+
+      <!-- STYLE TEST -->
       <button id="butTestClass">Toggle class .bg-dark</button>
       <button id="butTestStyle">Style backg transparent</button>
       <button id="butTestLog">Console.log select object</button>
       <br>
       <br>
       <hr>
-      <br>
-      <ul>
-        <li>if radio text:
-          <br>
-          set option[test number input].text = test value input
-        </li>
-        <li>if radio value:
-          <br>
-          set option[test number input].value = test value input
-        </li>
-        <li>if radio selected:
-          <br>
-          select option with id == test number input
-        </li>
-        <li>if no radio:
-          <br>
-          push new option with value and text = test value input
-        </li>
-      </ul>
+
+      <!-- GENERAL TEST -->
       <br>
       <label>
-        Text
-        <input type="radio" name="test-type" id="testTypeText"></input>
-      </label>
-      <label>
-        Value
-        <input type="radio" name="test-type" id="testTypeValue"></input>
-      </label>
-      <label>
-        Selected
-        <input type="radio" name="test-type" id="testTypeSelected"></input>
-      </label>
-      <br>
-      <label>
-      Test number
+      Test index
         <input id="testIndex"></input>
       </label>
       <label>
@@ -67,7 +39,30 @@
         <input id="testValue"></input>
       </label>
       <br>
-      <button id="testBut">Test</button>
+      <button id="testButText">Set index option text</button>
+      <button id="testButValue">Set index option value</button>
+      <button id="testButSelected">Set index option as selected</button>
+      <br>
+
+      <!-- ARRAY TEST -->
+      <br>
+      <hr>
+      <br>
+      Execute in options array:
+      <br>
+      <label>
+        Test text
+        <input id="testArrayText"></input>
+      </label>
+      <label>
+        Test value
+        <input id="testArrayValue"></input>
+      </label>
+      <br>
+      <button id="testButArrayPush">Push</button>
+      <button id="testButArrayPop">Pop</button>
+      <button id="testButArrayUnshift">Unshift</button>
+      <button id="testButArrayShift">Shift</button>
     </div>
     <script src="index.js" type="module"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
