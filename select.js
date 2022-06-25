@@ -204,7 +204,9 @@ export function mySelect(container, dataArray, configObject) {
   }
 
   this.config = configObject
-  this.useIds = !this.config || !('useIds' in this.config) || this.config.useIds //default true
+  this.useIds =
+    (!this.config || !('useIds' in this.config) || this.config.useIds) &&
+    dataArray.every((d) => 'id' in d)
 
   const dropdown = document.createElement('div')
   dropdown.classList.add('dropdown')
@@ -237,9 +239,16 @@ export function mySelect(container, dataArray, configObject) {
     const icon = document.createElement('i')
     icon.classList.add('fa', 'fa-times', 'fa-xs')
     clearButton.appendChild(icon)
-    clearButton.addEventListener('click', () => {
-      setSelectedOptionById(this, undefined)
-    })
+    clearButton.addEventListener(
+      'click',
+      this.useIds
+        ? () => {
+            setSelectedOptionById(this, undefined)
+          }
+        : () => {
+            setSelectedOption(this, undefined)
+          }
+    )
 
     this.button.classList.add('rounded')
 
