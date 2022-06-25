@@ -385,7 +385,10 @@ export function mySelect(container, dataArray, configObject) {
           if (!Array.isArray(value)) throw new Error('Data must be an array')
 
           value.forEach((el) => {
-            const oldOption = findOptionById(mySelect, el.id)
+            // add new options
+            const oldOption = mySelect.useIds
+              ? findOptionById(mySelect, el.id)
+              : findOption(mySelect, null, null, el)
             if (oldOption) oldOption.option.style.display = ''
             else {
               const newOption = createOption(mySelect, el)
@@ -394,7 +397,11 @@ export function mySelect(container, dataArray, configObject) {
             }
           })
           Object.values(target.options).forEach((opt) => {
-            if (!value.some((v) => v.id == opt.data.id)) {
+            // remove old options
+            if (
+              (mySelect.useIds && !value.some((v) => v.id == opt.data.id)) ||
+              (!mySelect.useIds && !value.some((v) => isDataOfOption(opt, v)))
+            ) {
               console.log('NOT IN ', opt)
               opt.option.style.display = 'none'
             }
