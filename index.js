@@ -2,7 +2,7 @@ import { mySelect } from './select.js'
 
 const container = document.getElementById('container')
 console.log(container)
-const data = [
+const dataWithId = [
   {
     id: 0,
     value: 'value1',
@@ -19,14 +19,44 @@ const data = [
     text: 'foo value 3',
   },
 ]
-console.log(data)
-const selectData = new mySelect(container, data, {
-  id: 'testSelect',
-  clearButton: true,
-  onSelected: (selected) => console.log('SELECTED EVENT: ', selected),
+const dataNoId = [
+  {
+    value: 'NoId_value1',
+    text: 'NoId_value 1',
+  },
+  {
+    value: 'NoId_zmyvalue2',
+    text: 'NoId_z my value 2',
+  },
+  {
+    value: 'NoId_foovalue3',
+    text: 'NoId_foo value 3',
+  },
+]
+
+let selectData
+
+document.getElementById('butCreateId').addEventListener('click', () => {
+  console.log(dataWithId)
+  selectData = new mySelect(container, dataWithId, {
+    id: 'testSelect',
+    clearButton: true,
+    onSelected: (selected) => console.log('SELECTED EVENT: ', selected),
+  })
+  console.log('======================== SELECT DATA', selectData)
+  window.selectData = selectData
 })
-console.log('======================== SELECT DATA', selectData)
-window.selectData = selectData
+
+document.getElementById('butCreateNoId').addEventListener('click', () => {
+  console.log(dataNoId)
+  selectData = new mySelect(container, dataNoId, {
+    id: 'testSelect',
+    clearButton: true,
+    onSelected: (selected) => console.log('SELECTED EVENT: ', selected),
+  })
+  console.log('======================== SELECT DATA', selectData)
+  window.selectData = selectData
+})
 
 document.getElementById('butTestClass').addEventListener('click', () => {
   console.groupCollapsed('TESTING MENU CLASS add .bg-dark')
