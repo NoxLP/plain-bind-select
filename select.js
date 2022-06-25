@@ -184,7 +184,7 @@ const setOptions = (select, dataArray) => {
       )
       return
     } else if (!select.useIds) {
-      if (!('lastId' in select)) select.lastId = 0
+      if (!('lastId' in select)) select.lastId = -1
 
       select.lastId++
     }
@@ -409,11 +409,9 @@ export function mySelect(container, dataArray, configObject) {
 
           return filteredDataProxy
         } else if (prop == 'selectedId') {
-          if (!mySelect.useIds) return true
           if (!mySelect.selectedByScript) setSelectedOptionById(mySelect, value)
-          else return Reflect.set(target, prop, value, receiver)
-        } else if (prop == 'selectedOption' && mySelect.selectedByScript) {
-          if (mySelect.useIds) return true
+          return Reflect.set(target, prop, value, receiver)
+        } else if (prop == 'selectedOption') {
           if (!mySelect.selectedByScript) setSelectedOption(mySelect, value)
           return Reflect.set(target, prop, value, receiver)
         }
