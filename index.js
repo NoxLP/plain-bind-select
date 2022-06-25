@@ -1,4 +1,4 @@
-import { mySelect } from "./select.js";
+import { mySelect } from './select.js'
 
 const container = document.getElementById('container')
 console.log(container)
@@ -6,26 +6,27 @@ const data = [
   {
     id: 0,
     value: 'value1',
-    text: 'value 1'
+    text: 'value 1',
   },
   {
     id: 1,
     value: 'zmyvalue2',
-    text: 'z my value 2'
+    text: 'z my value 2',
   },
   {
     id: 2,
     value: 'foovalue3',
-    text: 'foo value 3'
-  }
+    text: 'foo value 3',
+  },
 ]
-console.log(data);
-const selectData = mySelect(container, data, {
+console.log(data)
+const selectData = new mySelect(container, data, {
   id: 'testSelect',
   clearButton: true,
   onSelected: (selected) => console.log('SELECTED EVENT: ', selected),
 })
 console.log('======================== SELECT DATA', selectData)
+window.selectData = selectData
 
 document.getElementById('butTestClass').addEventListener('click', () => {
   console.groupCollapsed('TESTING MENU CLASS add .bg-dark')
@@ -79,9 +80,9 @@ document.getElementById('testButValue').addEventListener('click', () => {
   selectData.data[index].value = value
 })
 document.getElementById('testButSelected').addEventListener('click', () => {
-  validateGeneralTest()
-  logGeneralTest('selected')
   const index = document.getElementById('testIndex').value
+  if (index == '') throw new Error('General test lack some input')
+  logGeneralTest('selected')
 
   selectData.selectedId = index
 })
@@ -90,8 +91,7 @@ const validateArrayTest = () => {
   const text = document.getElementById('testArrayText').value
   const value = document.getElementById('testArrayValue').value
 
-  if (text == '' || value == '')
-    throw new Error('General test lack some input')
+  if (text == '' || value == '') throw new Error('General test lack some input')
 }
 const logArrayTest = (action) => {
   const text = document.getElementById('testArrayText').value
@@ -111,7 +111,7 @@ document.getElementById('testButArrayPush').addEventListener('click', () => {
   const obj = {
     id: lastId,
     value,
-    text
+    text,
   }
   console.log('push ', obj)
   ++lastId
@@ -131,7 +131,7 @@ document.getElementById('testButArrayUnshift').addEventListener('click', () => {
   const obj = {
     id: lastId,
     value,
-    text
+    text,
   }
   console.log('unshift ', obj)
   ++lastId
