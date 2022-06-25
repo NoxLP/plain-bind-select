@@ -1,3 +1,6 @@
+const isDataOfOption = (option, data) =>
+  option.data.text == data.text || option.data.value == data.value
+
 const saveOption = (select, option, data, index = undefined) => {
   if (!select.options) select.options = {}
   if (select.useIds) {
@@ -17,12 +20,28 @@ const saveOption = (select, option, data, index = undefined) => {
 }
 
 const removeOptionById = (select, returnObject, id) => {
-  if (returnObject.selectedId == id) returnObject.selectedId = undefined
+  if (returnObject.selectedId == id) {
+    returnObject.selectedId = undefined
+    returnObject.selectedOption = undefined
+  }
   select.options[id].option.remove()
   delete select.options[id]
 }
 
-const findOption = (select, propName, propValue, data) => {
+const removeOption = (select, returnObject, data) => {
+  if (isDataOfOption(returnObject.selectedOption, data)) {
+    returnObject.selectedOption.option.remove()
+    delete select.options[returnObject.selectedId]
+    returnObject.selectedOption = undefined
+    returnObject.selectedId = undefined
+  } else {
+    const key = findOption(select, null, null, data, true)
+    select.options[key].option.remove()
+    delete select.options[key]
+  }
+}
+
+const findOption = (select, propName, propValue, data, returnId = false) => {
   if (propName && propValue) {
     return Object.values(select.options).find(
       (o) => o.data[propName] == propValue
@@ -34,9 +53,11 @@ const findOption = (select, propName, propValue, data) => {
       )
     }
 
-    return Object.values(select.options).find(
-      (o) => o.data.text == data.text || o.data.value == data.value
-    )
+    return !returnId
+      ? Object.values(select.options).find((o) => isDataOfOption(o, data))
+      : Object.keys(select.options).find((key) =>
+          isDataOfOption(select.options[key], data)
+        )
   }
 }
 
@@ -75,13 +96,16 @@ const setSelectedOption = (select, el) => {
 
   select.selectedByScript = true
   if (el !== undefined && el !== null) {
-    const option = findOption(select, null, null, el) //findOptionById(select, id)
+    const key = findOption(select, null, null, el, true)
+    const option = select.options[key]
     select.button.innerHTML = option.option.text
 
+    select.returnObject.selectedId = key
     select.returnObject.selectedOption = option
     console.log('selected option ', select.returnObject.selectedOption)
     select.returnObject.selectedOption.option.classList.add('active')
   } else {
+    select.returnObject.selectedId = undefined
     select.returnObject.selectedOption = undefined
     select.button.innerHTML = ''
   }
@@ -266,9 +290,10 @@ export function mySelect(container, dataArray, configObject) {
           mySelect.dataProxiesArray.pop()
           console.log('DATA ', data)
 
-          if (mySelect.useIds) removeOptionById(mySelect, data.id)
-          else {
-          }
+          if (mySelect.useIds)
+            removeOptionById(mySelect, mySelect.returnObject, data.id)
+          else removeOption(mySelect, mySelect.returnObject, data)
+
           filter(mySelect)
         }
       } else if (prop == 'unshift') {
@@ -292,9 +317,10 @@ export function mySelect(container, dataArray, configObject) {
           mySelect.dataProxiesArray.shift()
           console.log('DATA ', data)
 
-          if (mySelect.useIds) removeOptionById(mySelect, data.id)
-          else {
-          }
+          if (mySelect.useIds)
+            removeOptionById(mySelect, mySelect.returnObject, data.id)
+          else removeOption(mySelect, mySelect.returnObject, data)
+
           filter(mySelect)
         }
       } else if (prop == 'sort') {
