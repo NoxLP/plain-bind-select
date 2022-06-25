@@ -1,8 +1,9 @@
 const saveOption = (select, option, data, index = undefined) => {
+  if (!select.options) select.options = {}
   if (select.useIds) {
-    if (!select.options) select.options = {}
-
     select.options[data.id] = { option, data }
+  } else {
+    select.options[select.lastId] = { option, data }
   }
 
   if (
@@ -21,20 +22,29 @@ const removeOptionById = (select, returnObject, id) => {
   delete select.options[id]
 }
 
-const findOption = (select, propName, propValue) => {
-  if (propName == 'id' && select.useIds) return select.options[propValue]
-  else if (select.useIds)
+const findOption = (select, propName, propValue, data) => {
+  if (propName && propValue) {
     return Object.values(select.options).find(
       (o) => o.data[propName] == propValue
     )
+  } else {
+    if (!data) {
+      throw new Error(
+        "Data not provided. If prop name and value aren't provided, data must be provided to check for text or value"
+      )
+    }
+
+    return Object.values(select.options).find(
+      (o) => o.data.text == data.text || o.data.value == data.value
+    )
+  }
 }
 
 const findOptionById = (select, id) => select.options[id]
 
 const setSelectedOptionById = (select, id) => {
   if (select.returnObject.selectedId != undefined) {
-    const oldSelected = findOptionById(select, select.returnObject.selectedId)
-    oldSelected.option.classList.remove('active')
+    select.returnObject.selectedOption.option.classList.remove('active')
   }
 
   select.selectedByScript = true
@@ -44,14 +54,34 @@ const setSelectedOptionById = (select, id) => {
     const option = findOptionById(select, id)
     select.button.innerHTML = option.option.text
 
-    select.returnObject.selectedOption = findOptionById(
-      select,
-      select.returnObject.selectedId
-    )
+    select.returnObject.selectedOption = option
     console.log('selected option ', select.returnObject.selectedOption)
     select.returnObject.selectedOption.option.classList.add('active')
   } else {
     select.returnObject.selectedId = undefined
+    select.returnObject.selectedOption = undefined
+    select.button.innerHTML = ''
+  }
+
+  if (select.returnObject.config && select.returnObject.config.onSelected)
+    select.returnObject.config.onSelected(select.returnObject.selectedOption)
+  select.selectedByScript = false
+}
+
+const setSelectedOption = (select, el) => {
+  if (select.returnObject.selectedOption != undefined) {
+    select.returnObject.selectedOption.option.classList.remove('active')
+  }
+
+  select.selectedByScript = true
+  if (el !== undefined && el !== null) {
+    const option = findOption(select, null, null, el) //findOptionById(select, id)
+    select.button.innerHTML = option.option.text
+
+    select.returnObject.selectedOption = option
+    console.log('selected option ', select.returnObject.selectedOption)
+    select.returnObject.selectedOption.option.classList.add('active')
+  } else {
     select.returnObject.selectedOption = undefined
     select.button.innerHTML = ''
   }
@@ -69,7 +99,12 @@ const createOption = (select, el) => {
   option.id = buildDOMOptionId(select.config.id, el.id)
   option.value = el.value
   option.text = el.text
-  option.addEventListener('click', () => setSelectedOptionById(select, el.id))
+  option.addEventListener(
+    'click',
+    select.useIds
+      ? () => setSelectedOptionById(select, el.id)
+      : () => setSelectedOption(select, el)
+  )
   return option
 }
 
@@ -124,14 +159,13 @@ const setOptions = (select, dataArray) => {
         'Objects must have minimum "value" and "text" properties. And "id" property if "useIds" config is activated'
       )
       return
-    }
-    const returnElement = {
-      value: el.value,
-      text: el.text,
-    }
-    if (select.useIds) returnElement.id = el.id
-    dataProxiesArray.push(createDataProxy(select, returnElement))
+    } else if (!select.useIds) {
+      if (!('lastId' in select)) select.lastId = 0
 
+      select.lastId++
+    }
+
+    dataProxiesArray.push(createDataProxy(select, el))
     const option = createOption(select, el)
     options = saveOption(select, option, el)
   })
@@ -333,10 +367,14 @@ export function mySelect(container, dataArray, configObject) {
 
           return filteredDataProxy
         } else if (prop == 'selectedId') {
+          if (!mySelect.useIds) return true
           if (!mySelect.selectedByScript) setSelectedOptionById(mySelect, value)
           else return Reflect.set(target, prop, value, receiver)
-        } else if (prop == 'selectedOption' && mySelect.selectedByScript)
+        } else if (prop == 'selectedOption' && mySelect.selectedByScript) {
+          if (mySelect.useIds) return true
+          if (!mySelect.selectedByScript) setSelectedOption(mySelect, value)
           return Reflect.set(target, prop, value, receiver)
+        }
 
         return true
       },
