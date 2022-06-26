@@ -4,16 +4,32 @@ const ERROR_ADDED_BAD_OBJECT =
   "'value' and a property as configured in field_text, and when " +
   "not configured, simply called 'text': "
 
-const isDataOfOption = (select, option, data) =>
-  option.data[select.fieldText] == data[select.fieldText] ||
-  option.data.value == data.value
+const isDataOfOption = (select, option, data) => {
+  console.log('-- isDataOfOption')
+  if (!data)
+    throw new Error("isDataOfOption: Can't compare option to undefined")
 
-const saveOption = (select, option, data, index = undefined) => {
+  return (
+    option &&
+    (option.data[select.fieldText] == data[select.fieldText] ||
+      option.data.value == data.value)
+  )
+}
+
+const saveOption = (
+  select,
+  option,
+  data,
+  index = undefined,
+  id = undefined
+) => {
   if (!select.options) select.options = {}
   if (select.useIds) {
-    select.options[data.id] = { option, data }
+    select.options[data[select.fieldId]] = { option, data }
   } else {
-    select.options[select.lastId] = { option, data }
+    if (id === undefined)
+      throw new Error('If not using ids, saveOption function needs an id')
+    select.options[id] = { option, data }
   }
 
   if (
@@ -27,15 +43,17 @@ const saveOption = (select, option, data, index = undefined) => {
 }
 
 const removeOptionById = (select, returnObject, id) => {
+  console.log('********* removeOptionById ', id)
   if (returnObject.selectedId == id) {
     returnObject.selectedId = undefined
     returnObject.selectedOption = undefined
   }
-  select.options[id].option.remove()
-  delete select.options[id]
+  select.options[select.fieldId].option.remove()
+  delete select.options[select.fieldId]
 }
 
 const removeOption = (select, returnObject, data) => {
+  console.log('********* removeOptionById ', data)
   if (isDataOfOption(select, returnObject.selectedOption, data)) {
     returnObject.selectedOption.option.remove()
     delete select.options[returnObject.selectedId]
@@ -49,6 +67,7 @@ const removeOption = (select, returnObject, data) => {
 }
 
 const findOption = (select, propName, propValue, data, returnId = false) => {
+  console.log('- findOption')
   if (propName && propValue) {
     return Object.values(select.options).find(
       (o) => o.data[propName] == propValue
@@ -61,10 +80,10 @@ const findOption = (select, propName, propValue, data, returnId = false) => {
     }
 
     return !returnId
-      ? Object.values(select.options).find((o) =>
+      ? Object.values(select.returnObject.options).find((o) =>
           isDataOfOption(select, o, data)
         )
-      : Object.keys(select.options).find((key) =>
+      : Object.keys(select.returnObject.options).find((key) =>
           isDataOfOption(select, select.options[key], data)
         )
   }
@@ -126,16 +145,19 @@ const setSelectedOption = (select, el) => {
 
 const buildDOMOptionId = (configid, elid) => `${configid}_option_${elid}`
 
-const createOption = (select, el) => {
+const createOption = (select, el, id) => {
   const option = document.createElement('option')
   option.classList.add('dropdown-item')
-  option.id = buildDOMOptionId(select.config.id, el.id)
+  option.id = buildDOMOptionId(
+    select.config.id,
+    id !== undefined ? id : el[select.fieldId]
+  )
   option.value = el.value
   option.text = el[select.fieldText]
   option.addEventListener(
     'click',
     select.useIds
-      ? () => setSelectedOptionById(select, el.id)
+      ? () => setSelectedOptionById(select, el[select.fieldId])
       : () => setSelectedOption(select, el)
   )
   return option
@@ -149,20 +171,20 @@ const createDataProxy = (select, data) =>
     },
     set: (target, prop, value, receiver) => {
       console.log('TAR ', prop, target)
-      if (prop == 'id') throw new Error("Can't modify id value")
+      if (prop == select.fieldId) throw new Error("Can't modify id value")
 
       if (prop == 'value' || prop == select.fieldText) {
         const option = select.useIds
-          ? findOptionById(select, target.id)
+          ? findOptionById(select, target[select.fieldId])
           : findOption(select, prop, value)
         console.log(option)
         option.option[prop] = value
 
         console.log('Selected: ', select.returnObject.selectedId)
-        console.log(target.id)
+        console.log(target[select.fieldId])
         if (
           select.returnObject.selectedId != undefined &&
-          select.returnObject.selectedId == target.id
+          select.returnObject.selectedId == target[select.fieldId]
         ) {
           console.log('changing selected ', value)
           select.button.innerHTML = value
@@ -174,24 +196,21 @@ const createDataProxy = (select, data) =>
   })
 
 const filter = (select) => {
-  console.log('FILTER ', select)
-  select.returnObject.data = select.dataProxiesArray.filter((el) => {
-    console.log('FITERING: ', select)
-    console.log('FITERING: ', el)
-    console.log('FITERING: ', el[select.fieldText])
-    el[select.fieldText].includes(select.filterInput.value) ||
+  console.log('--------- FILTER ', JSON.stringify(select, null, 4))
+  select.returnObject.data = select.dataProxiesArray.filter(
+    (el) =>
+      el[select.fieldText].includes(select.filterInput.value) ||
       el.value.includes(select.filterInput.value)
-  })
+  )
 }
 
 const setOptions = (select, dataArray) => {
   let options
   const dataProxiesArray = []
   dataArray.forEach((el) => {
-    console.log('> el ', el)
     if (
-      (mySelect.useIds && 'id' in el) ||
-      !(mySelect.fieldText in el) ||
+      (select.useIds && !(select.fieldId in el)) ||
+      !(select.fieldText in el) ||
       !('value' in el)
     ) {
       throw new Error(`${ERROR_ADDED_BAD_OBJECT}${JSON.stringify(el, null, 4)}`)
@@ -201,10 +220,19 @@ const setOptions = (select, dataArray) => {
       select.lastId++
     }
 
-    console.log('---- data proxy ', createDataProxy(select, el))
     dataProxiesArray.push(createDataProxy(select, el))
-    const option = createOption(select, el)
-    options = saveOption(select, option, el)
+    const option = createOption(
+      select,
+      el,
+      !select.useIds ? select.lastId : undefined
+    )
+    options = saveOption(
+      select,
+      option,
+      el,
+      undefined,
+      !select.useIds ? select.lastId : undefined
+    )
   })
 
   return [options, dataProxiesArray]
@@ -212,18 +240,25 @@ const setOptions = (select, dataArray) => {
 
 export function mySelect(container, dataArray, configObject) {
   if (!container || !dataArray || dataArray.length == 0) {
-    console.error('Bad select params')
-    return
+    throw new Error('Bad select params')
   }
 
   this.config = configObject
-  this.useIds =
-    (!this.config || !('useIds' in this.config) || this.config.useIds) &&
-    dataArray.every((d) => 'id' in d)
   this.fieldText =
     this.config && this.config.field_text && this.config.field_text != ''
       ? this.config.field_text
       : 'text'
+  this.fieldId =
+    this.config && this.config.field_id && this.config.field_id != ''
+      ? this.config.field_id
+      : 'id'
+  this.useIds =
+    (!this.config ||
+      this.config.useIds ||
+      (this.fieldId && this.fieldId != '')) &&
+    dataArray.every((d) => this.fieldId in d)
+
+  console.log('--- use ids: ', this.useIds)
 
   const dropdown = document.createElement('div')
   dropdown.classList.add('dropdown')
@@ -295,15 +330,16 @@ export function mySelect(container, dataArray, configObject) {
 
   console.log('options ', this.options)
   console.log('proxies ', this.dataProxiesArray)
-  const mySelect = this
+  let mySelect = this
   const filteredDataProxy = new Proxy(this.dataProxiesArray, {
     get: (target, prop, receiver) => {
-      console.log('FiltData GET ', prop)
+      console.log('$$$$$$$ FiltData GET ', prop, target)
       if (prop == 'push') {
         return (...args) => {
           args.forEach((value) => {
+            console.groupCollapsed('------------ push: ', value)
             if (
-              (mySelect.useIds && 'id' in value) ||
+              (mySelect.useIds && !(mySelect.fieldId in value)) ||
               !(mySelect.fieldText in value) ||
               !('value' in value)
             ) {
@@ -313,12 +349,19 @@ export function mySelect(container, dataArray, configObject) {
             }
 
             dataArray.push(value)
-            mySelect.dataProxiesArray.push(value)
+            mySelect.dataProxiesArray.push(createDataProxy(mySelect, value))
 
             const option = createOption(mySelect, value)
-            mySelect.options = saveOption(mySelect, option, value)
+            mySelect.options = saveOption(
+              mySelect,
+              option,
+              value,
+              undefined,
+              !mySelect.useIds ? ++mySelect.lastId : undefined
+            )
           })
           filter(mySelect)
+          console.groupEnd()
         }
       } else if (prop == 'pop') {
         return () => {
@@ -327,7 +370,11 @@ export function mySelect(container, dataArray, configObject) {
           console.log('DATA ', data)
 
           if (mySelect.useIds)
-            removeOptionById(mySelect, mySelect.returnObject, data.id)
+            removeOptionById(
+              mySelect,
+              mySelect.returnObject,
+              data[mySelect.fieldId]
+            )
           else removeOption(mySelect, mySelect.returnObject, data)
 
           filter(mySelect)
@@ -336,8 +383,9 @@ export function mySelect(container, dataArray, configObject) {
         return (...args) => {
           args.forEach((value, idx) => {
             if (
-              (mySelect.useIds && 'id' in value) ||
-              !(mySelect.fieldText in value)
+              (mySelect.useIds && !(mySelect.fieldId in value)) ||
+              !(mySelect.fieldText in value) ||
+              !('value' in value)
             ) {
               throw new Error(
                 `${ERROR_ADDED_BAD_OBJECT}${JSON.stringify(value, null, 4)}`
@@ -352,7 +400,13 @@ export function mySelect(container, dataArray, configObject) {
             )
 
             const option = createOption(mySelect, value)
-            mySelect.options = saveOption(mySelect, option, value, idx)
+            mySelect.options = saveOption(
+              mySelect,
+              option,
+              value,
+              idx,
+              !mySelect.useIds ? ++mySelect.lastId : undefined
+            )
           })
           filter(mySelect)
         }
@@ -363,7 +417,11 @@ export function mySelect(container, dataArray, configObject) {
           console.log('DATA ', data)
 
           if (mySelect.useIds)
-            removeOptionById(mySelect, mySelect.returnObject, data.id)
+            removeOptionById(
+              mySelect,
+              mySelect.returnObject,
+              data[mySelect.fieldId]
+            )
           else removeOption(mySelect, mySelect.returnObject, data)
 
           filter(mySelect)
@@ -376,7 +434,7 @@ export function mySelect(container, dataArray, configObject) {
           mySelect.menu.innerHTML = ''
           dataArray.forEach((data) => {
             const option = mySelect.useIds
-              ? findOptionById(mySelect, data.id).option
+              ? findOptionById(mySelect, data[mySelect.fieldId]).option
               : findOption(mySelect, null, null, data).option
             if (option) mySelect.menu.appendChild(option)
           })
@@ -395,6 +453,7 @@ export function mySelect(container, dataArray, configObject) {
     },
   })
 
+  mySelect = this
   this.returnObject = new Proxy(
     {
       options: this.options,
@@ -414,30 +473,41 @@ export function mySelect(container, dataArray, configObject) {
         return Reflect.get(target, prop, receiver)
       },
       set: (target, prop, value, receiver) => {
-        console.log('set data ', prop, value)
+        console.log('set data ', prop, target, value)
 
         if (prop == 'length') return true
 
         if (prop == 'data') {
-          console.log('data changed')
+          console.log('>> data changed: ', value)
           if (!Array.isArray(value)) throw new Error('Data must be an array')
 
           value.forEach((el) => {
             // add new options
+            console.log('add new options ', el)
             const oldOption = mySelect.useIds
-              ? findOptionById(mySelect, el.id)
+              ? findOptionById(mySelect, el[mySelect.fieldId])
               : findOption(mySelect, null, null, el)
             if (oldOption) oldOption.option.style.display = ''
             else {
               const newOption = createOption(mySelect, el)
-              console.log('new option ', el)
-              saveOption(mySelect, newOption, el)
+              saveOption(
+                mySelect,
+                newOption,
+                el,
+                undefined,
+                !mySelect.useIds ? ++mySelect.lastId : undefined
+              )
             }
           })
           Object.values(target.options).forEach((opt) => {
             // remove old options
+            console.log('>> remove old options')
             if (
-              (mySelect.useIds && !value.some((v) => v.id == opt.data.id)) ||
+              (mySelect.useIds &&
+                !value.some((v) => {
+                  console.log('>>> SOME: ', v)
+                  return v[mySelect.fieldId] == opt.data[mySelect.fieldId]
+                })) ||
               (!mySelect.useIds &&
                 !value.some((v) => isDataOfOption(mySelect, opt, v)))
             ) {

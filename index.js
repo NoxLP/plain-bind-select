@@ -138,14 +138,17 @@ document.getElementById('testButArrayPush').addEventListener('click', () => {
   logArrayTest('push')
   const text = document.getElementById('testArrayText').value
   const value = document.getElementById('testArrayValue').value
+  const fieldText = document.getElementById('testArrayFieldText').value
+  const fieldId = document.getElementById('testArrayFieldId').value
 
   const obj = {
-    id: lastId,
     value,
-    text,
   }
+  if (fieldText && fieldText != '') obj[fieldText] = text
+  if (fieldId && fieldId != '') obj[fieldId] = lastId
   console.log('push ', obj)
   ++lastId
+  console.log('========= ', JSON.stringify(selectData.options, null, 4))
   selectData.data.push(obj)
 })
 document.getElementById('testButArrayPop').addEventListener('click', () => {
@@ -158,12 +161,14 @@ document.getElementById('testButArrayUnshift').addEventListener('click', () => {
   logArrayTest('unshift')
   const text = document.getElementById('testArrayText').value
   const value = document.getElementById('testArrayValue').value
+  const fieldText = document.getElementById('testArrayFieldText').value
+  const fieldId = document.getElementById('testArrayFieldId').value
 
   const obj = {
-    id: lastId,
     value,
-    text,
   }
+  if (fieldText && fieldText != '') obj[fieldText] = text
+  if (fieldId && fieldId != '') obj[fieldId] = lastId
   console.log('unshift ', obj)
   ++lastId
   selectData.data.unshift(obj)
