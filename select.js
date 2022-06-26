@@ -1,5 +1,12 @@
-const isDataOfOption = (option, data) =>
-  option.data.text == data.text || option.data.value == data.value
+const ERROR_ADDED_BAD_OBJECT =
+  "Bad object. If select is using ids the object must have an 'id' " +
+  'property, and in any case the object must have a property ' +
+  "'value' and a property as configured in field_text, and when " +
+  "not configured, simply called 'text': "
+
+const isDataOfOption = (select, option, data) =>
+  option.data[select.fieldText] == data[select.fieldText] ||
+  option.data.value == data.value
 
 const saveOption = (select, option, data, index = undefined) => {
   if (!select.options) select.options = {}
@@ -29,7 +36,7 @@ const removeOptionById = (select, returnObject, id) => {
 }
 
 const removeOption = (select, returnObject, data) => {
-  if (isDataOfOption(returnObject.selectedOption, data)) {
+  if (isDataOfOption(select, returnObject.selectedOption, data)) {
     returnObject.selectedOption.option.remove()
     delete select.options[returnObject.selectedId]
     returnObject.selectedOption = undefined
@@ -54,9 +61,11 @@ const findOption = (select, propName, propValue, data, returnId = false) => {
     }
 
     return !returnId
-      ? Object.values(select.options).find((o) => isDataOfOption(o, data))
+      ? Object.values(select.options).find((o) =>
+          isDataOfOption(select, o, data)
+        )
       : Object.keys(select.options).find((key) =>
-          isDataOfOption(select.options[key], data)
+          isDataOfOption(select, select.options[key], data)
         )
   }
 }
@@ -122,7 +131,7 @@ const createOption = (select, el) => {
   option.classList.add('dropdown-item')
   option.id = buildDOMOptionId(select.config.id, el.id)
   option.value = el.value
-  option.text = el.text
+  option.text = el[select.fieldText]
   option.addEventListener(
     'click',
     select.useIds
@@ -142,7 +151,7 @@ const createDataProxy = (select, data) =>
       console.log('TAR ', prop, target)
       if (prop == 'id') throw new Error("Can't modify id value")
 
-      if (prop == 'value' || prop == 'text') {
+      if (prop == 'value' || prop == select.fieldText) {
         const option = select.useIds
           ? findOptionById(select, target.id)
           : findOption(select, prop, value)
@@ -166,11 +175,13 @@ const createDataProxy = (select, data) =>
 
 const filter = (select) => {
   console.log('FILTER ', select)
-  select.returnObject.data = select.dataProxiesArray.filter(
-    (el) =>
-      el.text.includes(select.filterInput.value) ||
+  select.returnObject.data = select.dataProxiesArray.filter((el) => {
+    console.log('FITERING: ', select)
+    console.log('FITERING: ', el)
+    console.log('FITERING: ', el[select.fieldText])
+    el[select.fieldText].includes(select.filterInput.value) ||
       el.value.includes(select.filterInput.value)
-  )
+  })
 }
 
 const setOptions = (select, dataArray) => {
@@ -178,17 +189,19 @@ const setOptions = (select, dataArray) => {
   const dataProxiesArray = []
   dataArray.forEach((el) => {
     console.log('> el ', el)
-    if (!el.value || !el.text || (select.useIds && !('id' in el))) {
-      console.error(
-        'Objects must have minimum "value" and "text" properties. And "id" property if "useIds" config is activated'
-      )
-      return
+    if (
+      (mySelect.useIds && 'id' in el) ||
+      !(mySelect.fieldText in el) ||
+      !('value' in el)
+    ) {
+      throw new Error(`${ERROR_ADDED_BAD_OBJECT}${JSON.stringify(el, null, 4)}`)
     } else if (!select.useIds) {
       if (!('lastId' in select)) select.lastId = -1
 
       select.lastId++
     }
 
+    console.log('---- data proxy ', createDataProxy(select, el))
     dataProxiesArray.push(createDataProxy(select, el))
     const option = createOption(select, el)
     options = saveOption(select, option, el)
@@ -207,6 +220,10 @@ export function mySelect(container, dataArray, configObject) {
   this.useIds =
     (!this.config || !('useIds' in this.config) || this.config.useIds) &&
     dataArray.every((d) => 'id' in d)
+  this.fieldText =
+    this.config && this.config.field_text && this.config.field_text != ''
+      ? this.config.field_text
+      : 'text'
 
   const dropdown = document.createElement('div')
   dropdown.classList.add('dropdown')
@@ -285,6 +302,16 @@ export function mySelect(container, dataArray, configObject) {
       if (prop == 'push') {
         return (...args) => {
           args.forEach((value) => {
+            if (
+              (mySelect.useIds && 'id' in value) ||
+              !(mySelect.fieldText in value) ||
+              !('value' in value)
+            ) {
+              throw new Error(
+                `${ERROR_ADDED_BAD_OBJECT}${JSON.stringify(value, null, 4)}`
+              )
+            }
+
             dataArray.push(value)
             mySelect.dataProxiesArray.push(value)
 
@@ -308,6 +335,15 @@ export function mySelect(container, dataArray, configObject) {
       } else if (prop == 'unshift') {
         return (...args) => {
           args.forEach((value, idx) => {
+            if (
+              (mySelect.useIds && 'id' in value) ||
+              !(mySelect.fieldText in value)
+            ) {
+              throw new Error(
+                `${ERROR_ADDED_BAD_OBJECT}${JSON.stringify(value, null, 4)}`
+              )
+            }
+
             dataArray.splice(idx, 0, value)
             mySelect.dataProxiesArray.splice(
               idx,
@@ -402,7 +438,8 @@ export function mySelect(container, dataArray, configObject) {
             // remove old options
             if (
               (mySelect.useIds && !value.some((v) => v.id == opt.data.id)) ||
-              (!mySelect.useIds && !value.some((v) => isDataOfOption(opt, v)))
+              (!mySelect.useIds &&
+                !value.some((v) => isDataOfOption(mySelect, opt, v)))
             ) {
               console.log('NOT IN ', opt)
               opt.option.style.display = 'none'

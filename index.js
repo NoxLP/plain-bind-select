@@ -22,15 +22,15 @@ const dataWithId = [
 const dataNoId = [
   {
     value: 'NoId_value1',
-    text: 'NoId_value 1',
+    foo: 'NoId_value 1',
   },
   {
     value: 'NoId_zmyvalue2',
-    text: 'NoId_z my value 2',
+    foo: 'NoId_z my value 2',
   },
   {
     value: 'NoId_foovalue3',
-    text: 'NoId_foo value 3',
+    foo: 'NoId_foo value 3',
   },
 ]
 
@@ -51,6 +51,7 @@ document.getElementById('butCreateNoId').addEventListener('click', () => {
   console.log(dataNoId)
   selectData = new mySelect(container, dataNoId, {
     id: 'testSelect',
+    field_text: 'foo',
     clearButton: true,
     onSelected: (selected) => console.log('SELECTED EVENT: ', selected),
   })
