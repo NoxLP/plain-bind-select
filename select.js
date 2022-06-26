@@ -339,7 +339,9 @@ export function mySelect(container, dataArray, configObject) {
 
           mySelect.menu.innerHTML = ''
           dataArray.forEach((data) => {
-            const option = findOptionById(mySelect, data.id).option
+            const option = mySelect.useIds
+              ? findOptionById(mySelect, data.id).option
+              : findOption(mySelect, null, null, data).option
             if (option) mySelect.menu.appendChild(option)
           })
           filter(mySelect)
