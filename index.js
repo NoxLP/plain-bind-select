@@ -94,21 +94,14 @@ const logGeneralTest = (target) => {
   console.log('value: ', value)
   console.groupEnd()
 }
-document.getElementById('testButText').addEventListener('click', () => {
+document.getElementById('testButProp').addEventListener('click', () => {
   validateGeneralTest()
   logGeneralTest('text')
   const index = document.getElementById('testIndex').value
   const value = document.getElementById('testValue').value
+  const prop = document.getElementById('testProp').value
 
-  selectData.data[index].text = value
-})
-document.getElementById('testButValue').addEventListener('click', () => {
-  validateGeneralTest()
-  logGeneralTest('value')
-  const index = document.getElementById('testIndex').value
-  const value = document.getElementById('testValue').value
-
-  selectData.data[index].value = value
+  selectData.data[index][prop] = value
 })
 document.getElementById('testButSelected').addEventListener('click', () => {
   const index = document.getElementById('testIndex').value

@@ -14,8 +14,8 @@
       SELECT
     </div>
     <br>
-    <div style="border: solid 1px black; padding: 10px; margin: 10px; margin-top: 100px;">
-      TESTS
+    <div style="border: solid 1px black; padding: 10px; margin: 10px;">
+      <b>TESTS</b>
       <br>
       <hr>
       <br>
@@ -27,6 +27,9 @@
       <hr>
 
       <!-- STYLE TEST -->
+      <br>
+      <b>Style</b>
+      <br>
       <button id="butTestClass">Toggle class .bg-dark</button>
       <button id="butTestStyle">Style backg transparent</button>
       <button id="butTestLog">Console.log select object</button>
@@ -36,25 +39,30 @@
 
       <!-- GENERAL TEST -->
       <br>
+      <b>Set properties and selected</b>
+      <br>
       <label>
       Test index
         <input id="testIndex"></input>
+      </label>
+      <label>
+        Test property name
+        <input id="testProp" value="text"></input>
       </label>
       <label>
         Test value
         <input id="testValue"></input>
       </label>
       <br>
-      <button id="testButText">Set index option text</button>
-      <button id="testButValue">Set index option value</button>
+      <button id="testButProp">Set index option property</button>
       <button id="testButSelected">Set index option as selected</button>
       <br>
+      <br>
+      <hr>
 
       <!-- ARRAY TEST -->
       <br>
-      <hr>
-      <br>
-      Execute in options array:
+      <b>Execute in options array:</b>
       <br>
       <label>
         Test text
@@ -77,13 +85,13 @@
       <button id="testButArrayPop">Pop</button>
       <button id="testButArrayUnshift">Unshift</button>
       <button id="testButArrayShift">Shift</button>
-
-      <!-- SORT TEST -->
       <br>
       <br>
       <hr>
+
+      <!-- SORT TEST -->
       <br>
-      Direct sort data:
+      <b>Direct sort data:</b>
       <br>
       <label>
         Compare function eval

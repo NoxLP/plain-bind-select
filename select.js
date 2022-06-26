@@ -176,9 +176,10 @@ const createDataProxy = (select, data) =>
       if (prop == 'value' || prop == select.fieldText) {
         const option = select.useIds
           ? findOptionById(select, target[select.fieldId])
-          : findOption(select, prop, value)
+          : findOption(select, undefined, undefined, target)
         console.log(option)
-        option.option[prop] = value
+        if (prop == select.fieldText) option.option.text = value
+        else option.option.value = value
 
         console.log('Selected: ', select.returnObject.selectedId)
         console.log(target[select.fieldId])
