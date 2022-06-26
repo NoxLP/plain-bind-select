@@ -519,6 +519,8 @@ export function mySelect(container, dataArray, configObject) {
 
           return filteredDataProxy
         } else if (prop == 'selectedId') {
+          if (value && value < 0) value = undefined
+
           if (!mySelect.selectedByScript) setSelectedOptionById(mySelect, value)
           return Reflect.set(target, prop, value, receiver)
         } else if (prop == 'selectedOption') {
