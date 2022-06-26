@@ -106,10 +106,20 @@ const setSelectedOptionById = (select, id) => {
     select.returnObject.selectedOption = option
     console.log('selected option ', select.returnObject.selectedOption)
     select.returnObject.selectedOption.option.classList.add('active')
+    if (select.button.classList.contains('text-muted'))
+      select.button.classList.remove('text-muted')
   } else {
     select.returnObject.selectedId = undefined
     select.returnObject.selectedOption = undefined
-    select.button.innerHTML = ''
+    if (
+      select.config &&
+      select.config.placeholder &&
+      select.config.placeholder != ''
+    ) {
+      if (!select.button.classList.contains('text-muted'))
+        select.button.classList.add('text-muted')
+      select.button.innerHTML = select.config.placeholder
+    } else select.button.innerHTML = ''
   }
 
   if (select.returnObject.config && select.returnObject.config.on_selected)
@@ -132,10 +142,20 @@ const setSelectedOption = (select, el) => {
     select.returnObject.selectedOption = option
     console.log('selected option ', select.returnObject.selectedOption)
     select.returnObject.selectedOption.option.classList.add('active')
+    if (select.button.classList.contains('text-muted'))
+      select.button.classList.remove('text-muted')
   } else {
     select.returnObject.selectedId = undefined
     select.returnObject.selectedOption = undefined
-    select.button.innerHTML = ''
+    if (
+      select.config &&
+      select.config.placeholder &&
+      select.config.placeholder != ''
+    ) {
+      if (!select.button.classList.contains('text-muted'))
+        select.button.classList.add('text-muted')
+      select.button.innerHTML = select.config.placeholder
+    } else select.button.innerHTML = ''
   }
 
   if (select.returnObject.config && select.returnObject.config.on_selected)
@@ -267,6 +287,10 @@ export function mySelect(container, dataArray, configObject) {
   this.button.type = 'button'
   this.button.id = this.config.id
   this.button.dataset.toggle = 'dropdown'
+  if (this.config && this.config.placeholder && this.config.placeholder != '') {
+    this.button.classList.add('text-muted')
+    this.button.innerHTML = this.config.placeholder
+  }
 
   this.menu = document.createElement('div')
   this.menu.classList.add('dropdown-menu', 'w-100')

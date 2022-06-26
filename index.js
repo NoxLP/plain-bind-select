@@ -41,6 +41,7 @@ document.getElementById('butCreateId').addEventListener('click', () => {
   selectData = new mySelect(container, dataWithId, {
     id: 'testSelect',
     allow_clear: true,
+    placeholder: 'Mi placeholder',
     on_selected: (selected) => console.log('SELECTED EVENT: ', selected),
   })
   console.log('======================== SELECT DATA', selectData)

@@ -49,3 +49,4 @@ selectData.data = selectData.data.sort((a, b) => a.value.localeCompare(b.value))
 | allow_clear | Add a button to clear selected option | no | ```false```|
 | search_box | Add a search box to filter options | no | ```true``` |
 | on_selected | Callback to execute when an option is selected | no | none |
+| placeholder | Select placeholder | no | none|
