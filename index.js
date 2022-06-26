@@ -40,8 +40,8 @@ document.getElementById('butCreateId').addEventListener('click', () => {
   console.log(dataWithId)
   selectData = new mySelect(container, dataWithId, {
     id: 'testSelect',
-    clearButton: true,
-    onSelected: (selected) => console.log('SELECTED EVENT: ', selected),
+    allow_clear: true,
+    on_selected: (selected) => console.log('SELECTED EVENT: ', selected),
   })
   console.log('======================== SELECT DATA', selectData)
   window.selectData = selectData
@@ -52,8 +52,8 @@ document.getElementById('butCreateNoId').addEventListener('click', () => {
   selectData = new mySelect(container, dataNoId, {
     id: 'testSelect',
     field_text: 'foo',
-    clearButton: true,
-    onSelected: (selected) => console.log('SELECTED EVENT: ', selected),
+    allow_clear: true,
+    on_selected: (selected) => console.log('SELECTED EVENT: ', selected),
   })
   console.log('======================== SELECT DATA', selectData)
   window.selectData = selectData

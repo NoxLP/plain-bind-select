@@ -112,8 +112,8 @@ const setSelectedOptionById = (select, id) => {
     select.button.innerHTML = ''
   }
 
-  if (select.returnObject.config && select.returnObject.config.onSelected)
-    select.returnObject.config.onSelected(select.returnObject.selectedOption)
+  if (select.returnObject.config && select.returnObject.config.on_selected)
+    select.returnObject.config.on_selected(select.returnObject.selectedOption)
   select.selectedByScript = false
 }
 
@@ -138,8 +138,8 @@ const setSelectedOption = (select, el) => {
     select.button.innerHTML = ''
   }
 
-  if (select.returnObject.config && select.returnObject.config.onSelected)
-    select.returnObject.config.onSelected(select.returnObject.selectedOption)
+  if (select.returnObject.config && select.returnObject.config.on_selected)
+    select.returnObject.config.on_selected(select.returnObject.selectedOption)
   select.selectedByScript = false
 }
 
@@ -254,9 +254,7 @@ export function mySelect(container, dataArray, configObject) {
       ? this.config.field_id
       : 'id'
   this.useIds =
-    (!this.config ||
-      this.config.useIds ||
-      (this.fieldId && this.fieldId != '')) &&
+    (!this.config || (this.fieldId && this.fieldId != '')) &&
     dataArray.every((d) => this.fieldId in d)
 
   console.log('--- use ids: ', this.useIds)
@@ -274,7 +272,7 @@ export function mySelect(container, dataArray, configObject) {
   this.menu.classList.add('dropdown-menu', 'w-100')
   this.menu.setAttribute('aria-labelledby', this.config.id)
 
-  if (this.config && this.config.clearButton) {
+  if (this.config && this.config.allow_clear) {
     const group = document.createElement('div')
     group.classList.add('input-group')
     const clearButton = document.createElement('button')
@@ -314,7 +312,11 @@ export function mySelect(container, dataArray, configObject) {
     dropdown.appendChild(this.menu)
   }
 
-  if (!this.config || !('filter' in this.config) || this.config.filter) {
+  if (
+    !this.config ||
+    !('search_box' in this.config) ||
+    this.config.search_box
+  ) {
     this.filterInput = document.createElement('input')
     this.filterInput.classList.add('form-control', 'mb-3', 'mx-auto')
     this.filterInput.style.width = '97%'
