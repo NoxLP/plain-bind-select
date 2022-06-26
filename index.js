@@ -18,6 +18,11 @@ const dataWithId = [
     value: 'foovalue3',
     text: 'foo value 3',
   },
+  {
+    id: 3,
+    value: 'foovalue4',
+    text: 'foo value 4',
+  },
 ]
 const dataNoId = [
   {
@@ -42,6 +47,7 @@ document.getElementById('butCreateId').addEventListener('click', () => {
     id: 'testSelect',
     allow_clear: true,
     placeholder: 'Mi placeholder',
+    limit: 3,
     on_selected: (selected) => console.log('SELECTED EVENT: ', selected),
   })
   console.log('======================== SELECT DATA', selectData)

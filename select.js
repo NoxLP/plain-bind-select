@@ -228,7 +228,8 @@ const filter = (select) => {
 const setOptions = (select, dataArray) => {
   let options
   const dataProxiesArray = []
-  dataArray.forEach((el) => {
+  const data = select.limit ? dataArray.slice(0, select.limit) : dataArray
+  data.forEach((el) => {
     if (
       (select.useIds && !(select.fieldId in el)) ||
       !(select.fieldText in el) ||
@@ -276,6 +277,7 @@ export function mySelect(container, dataArray, configObject) {
   this.useIds =
     (!this.config || (this.fieldId && this.fieldId != '')) &&
     dataArray.every((d) => this.fieldId in d)
+  this.limit = this.config && this.config.limit ? this.config.limit : undefined
 
   console.log('--- use ids: ', this.useIds)
 

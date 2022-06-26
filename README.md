@@ -50,3 +50,4 @@ selectData.data = selectData.data.sort((a, b) => a.value.localeCompare(b.value))
 | search_box | Add a search box to filter options | no | ```true``` |
 | on_selected | Callback to execute when an option is selected | no | none |
 | placeholder | Select placeholder | no | none|
+| limit | Limit **initial** number of options. Setting it to 0 is the same as not setting it | no |none|
