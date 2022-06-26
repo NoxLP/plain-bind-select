@@ -1,6 +1,8 @@
 # Use
 ```(Javascript)
-const selectData = new mySelect(container, data, {
+const selectData = new mySelect({
+    container, 
+    data, 
     id: 'testSelect',
     allow_clear: true,
     onSelected: (selected) => console.log('SELECTED EVENT: ', selected),
@@ -18,9 +20,7 @@ selectData.data = selectData.data.sort((a, b) => a.value.localeCompare(b.value))
 # Params
 | name | description | required |
 |---|---|---|
-|container|DOM element that will contain the select as a child|yes|
-|data|Data array for the options|yes|
-|config|Config object(see below)|no|
+|config|Config object(see below)|yes|
 
 <br></br>
 
@@ -41,15 +41,17 @@ selectData.data = selectData.data.sort((a, b) => a.value.localeCompare(b.value))
 <br></br>
 
 # Config values
-| name | description | default |
-|---|---|---|
-| id | Resultant select DOM element id | - |
-| field_text | Data property name that will act as option text | ```text``` |
-| field_id | Data property name that will act as option id | ```id``` |
-| allow_clear | Add a button to clear selected option | ```false```|
-| search_box | Add a search box to filter options | ```true``` |
-| on_selected | Callback to execute when an option is selected | - |
-| placeholder | Select placeholder | -|
-| limit | Limit **initial** number of options. Setting it to 0 is the same as not setting it | -|
-| title | Tooltip | -|
-|data-placement | Tooltip position | if title => default ```bottom```
+| name | description | required | default |
+|---|---|---|---|
+|container|DOM element that will contain the select as a child|yes| -|
+|data|Data array for the options|yes| -|
+| id | Resultant select DOM element id | no | - |
+| field_text | Data property name that will act as option text | no | ```text``` |
+| field_id | Data property name that will act as option id | no | ```id``` |
+| allow_clear | Add a button to clear selected option | no | ```false```|
+| search_box | Add a search box to filter options | no | ```true``` |
+| on_selected | Callback to execute when an option is selected | no | - |
+| placeholder | Select placeholder | no | -|
+| limit | Limit **initial** number of options. Setting it to 0 is the same as not setting it | no | -|
+| title | Tooltip | no | -|
+|data-placement | Tooltip position | no | if title => default ```bottom```

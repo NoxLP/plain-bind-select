@@ -43,7 +43,9 @@ let selectData
 
 document.getElementById('butCreateId').addEventListener('click', () => {
   console.log(dataWithId)
-  selectData = new mySelect(container, dataWithId, {
+  selectData = new mySelect({
+    container,
+    dataWithId,
     id: 'testSelect',
     allow_clear: true,
     placeholder: 'Mi placeholder',
@@ -57,7 +59,9 @@ document.getElementById('butCreateId').addEventListener('click', () => {
 
 document.getElementById('butCreateNoId').addEventListener('click', () => {
   console.log(dataNoId)
-  selectData = new mySelect(container, dataNoId, {
+  selectData = new mySelect({
+    container,
+    dataNoId,
     id: 'testSelect',
     field_text: 'foo',
     allow_clear: true,

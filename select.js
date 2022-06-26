@@ -260,10 +260,17 @@ const setOptions = (select, dataArray) => {
   return [options, dataProxiesArray]
 }
 
-export function mySelect(container, dataArray, configObject) {
-  if (!container || !dataArray || dataArray.length == 0) {
+export function mySelect(configObject) {
+  if (
+    !configObject.container ||
+    !configObject.data ||
+    configObject.data.length == 0
+  ) {
     throw new Error('Bad select params')
   }
+
+  const container = configObject.container
+  const dataArray = configObject.data
 
   this.config = configObject
   this.fieldText =
