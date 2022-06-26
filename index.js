@@ -48,6 +48,7 @@ document.getElementById('butCreateId').addEventListener('click', () => {
     allow_clear: true,
     placeholder: 'Mi placeholder',
     limit: 3,
+    title: 'PRUEBA',
     on_selected: (selected) => console.log('SELECTED EVENT: ', selected),
   })
   console.log('======================== SELECT DATA', selectData)

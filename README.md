@@ -41,13 +41,15 @@ selectData.data = selectData.data.sort((a, b) => a.value.localeCompare(b.value))
 <br></br>
 
 # Config values
-| name | description | required | default |
-|---|---|---|---|
-| id | Resultant select DOM element id | no | - |
-| field_text | Data property name that will act as option text | no | ```text``` |
-| field_id | Data property name that will act as option id | no | ```id``` |
-| allow_clear | Add a button to clear selected option | no | ```false```|
-| search_box | Add a search box to filter options | no | ```true``` |
-| on_selected | Callback to execute when an option is selected | no | none |
-| placeholder | Select placeholder | no | none|
-| limit | Limit **initial** number of options. Setting it to 0 is the same as not setting it | no |none|
+| name | description | default |
+|---|---|---|
+| id | Resultant select DOM element id | - |
+| field_text | Data property name that will act as option text | ```text``` |
+| field_id | Data property name that will act as option id | ```id``` |
+| allow_clear | Add a button to clear selected option | ```false```|
+| search_box | Add a search box to filter options | ```true``` |
+| on_selected | Callback to execute when an option is selected | - |
+| placeholder | Select placeholder | -|
+| limit | Limit **initial** number of options. Setting it to 0 is the same as not setting it | -|
+| title | Tooltip | -|
+|data-placement | Tooltip position | if title => default ```bottom```

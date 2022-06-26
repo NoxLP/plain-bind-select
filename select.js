@@ -283,6 +283,16 @@ export function mySelect(container, dataArray, configObject) {
 
   const dropdown = document.createElement('div')
   dropdown.classList.add('dropdown')
+  if (this.config && this.config.title && this.config.title != '') {
+    dropdown.setAttribute('data-toggle', this.config.title)
+    if (
+      !this.config ||
+      !this.config['data-placement'] ||
+      this.config['data-placement'] == ''
+    ) {
+      dropdown.setAttribute('data-placement', 'bottom')
+    }
+  }
 
   this.button = document.createElement('button')
   this.button.classList.add('form-control', 'dropdown-toggle', 'text-left')
